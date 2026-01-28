@@ -2,8 +2,10 @@ import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import { compare } from "bcryptjs"
 import prisma from "@/lib/prisma"
+import { authConfig } from "./auth.config"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+    ...authConfig,
     providers: [
         Credentials({
             name: "Start with Email",
@@ -40,8 +42,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     throw new Error("Account suspended.")
                 }
 
-
-
                 return {
                     id: user.id,
                     email: user.email,
@@ -51,29 +51,4 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             }
         })
     ],
-    pages: {
-        signIn: '/login',
-        error: '/login', // Error code passed in url
-    },
-    callbacks: {
-        async jwt({ token, user }) {
-            if (user) {
-                token.role = user.role
-                token.id = user.id
-            }
-            return token
-        },
-        async session({ session, token }) {
-            if (token && session.user) {
-                session.user.role = token.role
-                session.user.id = token.id
-            }
-            return session
-        }
-    }
-},
-    session: {
-    strategy: "jwt",
-},
-    trustHost: true,
 })
