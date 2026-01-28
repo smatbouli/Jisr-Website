@@ -59,7 +59,7 @@ export default function BuyerRfqDetailView({ rfq }) {
 
                             {response.notes && (
                                 <div className="bg-gray-50 p-3 rounded text-sm text-gray-700 mb-4">
-                                    "{response.notes}"
+                                    &quot;{response.notes}&quot;
                                 </div>
                             )}
 

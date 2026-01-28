@@ -98,7 +98,7 @@ export default async function BuyerFactoryProfilePage({ params }) {
                             <Box size={24} />
                         </div>
                         <h3 className="text-lg font-medium text-gray-900">No Products Listed</h3>
-                        <p className="text-gray-500">This factory hasn't uploaded any products yet.</p>
+                        <p className="text-gray-500">This factory hasn&apos;t uploaded any products yet.</p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">

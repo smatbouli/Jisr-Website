@@ -118,7 +118,7 @@ export default async function PublicFactoryProfilePage({ params }) {
                                         <div className="text-xs text-gray-500">{new Date(review.createdAt).toLocaleDateString()}</div>
                                     </div>
                                     <RatingStars rating={review.rating} />
-                                    {review.comment && <p className="text-gray-600 mt-2 text-sm">"{review.comment}"</p>}
+                                    {review.comment && <p className="text-gray-600 mt-2 text-sm">&quot;{review.comment}&quot;</p>}
                                 </Card>
                             ))}
                         </div>

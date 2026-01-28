@@ -9,14 +9,6 @@ const LanguageContext = createContext();
 export function LanguageProvider({ children, initialLanguage = 'en' }) {
     const [language, setLanguage] = useState(initialLanguage);
 
-    // Sync with initial language on mount if needed, or rely on server injection
-    useEffect(() => {
-        // If we are on the client, we might want to double check custom logic, 
-        // but for now relying on the prop passed from layout is best for avoiding hydration mismatch.
-        // We still update the document direction.
-        updateDirection(language);
-    }, [language]);
-
     const updateDirection = (lang) => {
         if (lang === 'ar') {
             document.documentElement.dir = 'rtl';
@@ -26,6 +18,14 @@ export function LanguageProvider({ children, initialLanguage = 'en' }) {
             document.documentElement.lang = 'en';
         }
     };
+
+    // Sync with initial language on mount if needed, or rely on server injection
+    useEffect(() => {
+        // If we are on the client, we might want to double check custom logic, 
+        // but for now relying on the prop passed from layout is best for avoiding hydration mismatch.
+        // We still update the document direction.
+        updateDirection(language);
+    }, [language]);
 
     const setCookie = (name, value, days) => {
         const expires = new Date(Date.now() + days * 864e5).toUTCString();

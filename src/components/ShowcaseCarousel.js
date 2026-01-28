@@ -123,9 +123,7 @@ export default function ShowcaseCarousel({ title, subtitle, products = [], linkT
                                         <p className="text-gray-500 font-medium">
                                             {t('from') || 'From'} {product.priceMin && product.priceMax
                                                 ? `SAR ${product.priceMin} - ${product.priceMax}`
-                                                : product.price
-                                                    ? `SAR ${product.price}`
-                                                    : "SAR " + Math.floor(Math.random() * 5000 + 1000)
+                                                : "SAR " + (1000 + (product.name.length * 100))
                                             }
                                         </p>
                                         {product.moq && (
