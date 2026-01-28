@@ -1,0 +1,88 @@
+import { NextResponse } from 'next/server';
+import { hash } from 'bcryptjs';
+import prisma from '@/lib/prisma';
+
+export async function POST(req) {
+    try {
+        const body = await req.json();
+        const { email, password, role, businessName, fullName } = body;
+
+        if (!email || !password || !businessName || !fullName) {
+            return NextResponse.json(
+                { message: 'Missing required fields' },
+                { status: 400 }
+            );
+        }
+
+        // Check if user exists
+        const existingUser = await prisma.user.findUnique({
+            where: { email },
+        });
+
+        if (existingUser) {
+            return NextResponse.json(
+                { message: 'User already exists' },
+                { status: 409 }
+            );
+        }
+
+        const hashedPassword = await hash(password, 10);
+
+        // Create user and profile in transaction
+        const newUser = await prisma.$transaction(async (tx) => {
+            // Generate 6-digit OTP
+            const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+            const user = await tx.user.create({
+                data: {
+                    email,
+                    password: hashedPassword,
+                    role: role || 'BUYER',
+                    isVerified: false,
+                    verificationCode
+                },
+            });
+
+            if (role === 'FACTORY') {
+                await tx.factoryProfile.create({
+                    data: {
+                        userId: user.id,
+                        businessName: businessName,
+                        verificationStatus: 'UNVERIFIED',
+                        // Additional factory defaults can go here
+                    },
+                });
+            } else if (role === 'BUYER') {
+                await tx.buyerProfile.create({
+                    data: {
+                        userId: user.id,
+                        businessName: businessName,
+                        // Buyer specific defaults
+                    },
+                });
+            }
+            // Add ADMIN logic here if needed, or handle separately (admins usually created manually/seeded)
+
+            return user;
+        });
+
+        // Send OTP via Mock Email
+        const { sendEmail } = await import('@/lib/notifications-external');
+        await sendEmail({
+            to: email,
+            subject: 'Verify your Jisr Account',
+            text: `Your verification code is: ${newUser.verificationCode}`
+        });
+
+        return NextResponse.json(
+            { message: 'User created. Please verify email.', email: newUser.email },
+            { status: 201 }
+        );
+    } catch (error) {
+        console.error('Registration error:', error);
+        return NextResponse.json(
+            { message: 'Internal server error' },
+            { status: 500 }
+        );
+    }
+}

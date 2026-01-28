@@ -1,0 +1,24 @@
+import Sidebar from '@/components/Sidebar';
+
+export default function BuyerLayout({ children }) {
+    const navItems = [
+        { label: 'overview', href: '/buyer', icon: '📊' },
+        { label: 'find_factories', href: '/buyer/factories', icon: '🏭' },
+        { label: 'my_rfqs', href: '/buyer/rfq', icon: '📝' },
+        { label: 'my_orders', href: '/buyer/orders', icon: '📦' },
+        { label: 'messages', href: '/messages', icon: '✉️' },
+        { label: 'settings', href: '/buyer/settings', icon: '⚙️' },
+    ];
+
+    return (
+        <div className="min-h-screen flex bg-surface-50">
+            <Sidebar items={navItems} />
+            {/* Main Content Area - Pushed right by sidebar (md:pl-64) */}
+            <main className="flex-1 md:ps-64 transition-all duration-300">
+                <div className="container p-6 md:p-8 lg:p-10 max-w-7xl mx-auto">
+                    {children}
+                </div>
+            </main>
+        </div>
+    );
+}

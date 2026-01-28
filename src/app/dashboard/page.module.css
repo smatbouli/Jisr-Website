@@ -1,0 +1,68 @@
+.dashboardContainer {
+    min-height: calc(100vh - 80px);
+    padding: 40px 24px;
+    background-color: var(--background);
+}
+
+.header {
+    margin-bottom: 40px;
+}
+
+.welcome {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin-bottom: 8px;
+}
+
+.role {
+    color: #666;
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+}
+
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 24px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.cardTitle {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--foreground);
+}
+
+.cardContent {
+    color: #666;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.actionButton {
+    display: inline-block;
+    margin-top: 16px;
+    color: var(--color-primary);
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.actionButton:hover {
+    text-decoration: underline;
+}
