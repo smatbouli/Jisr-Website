@@ -40,7 +40,7 @@ function LoginForm() {
             } else {
                 // Force a hard navigation to ensure session cookies are recognized
                 router.refresh();
-                window.location.href = '/';
+                window.location.href = '/dashboard';
             }
         } catch (err) {
             setError('Something went wrong');

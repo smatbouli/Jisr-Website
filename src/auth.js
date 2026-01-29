@@ -42,10 +42,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     throw new Error("Account suspended.")
                 }
 
+                let name = null;
+                if (user.role === "FACTORY") {
+                    name = user.factoryProfile?.businessName;
+                } else if (user.role === "BUYER") {
+                    name = user.buyerProfile?.businessName;
+                } else if (user.role === "ADMIN") {
+                    name = "Administrator";
+                }
+
                 return {
                     id: user.id,
                     email: user.email,
-                    name: user.role === "FACTORY" ? user.factoryProfile?.businessName : user.buyerProfile?.businessName,
+                    name: name,
                     role: user.role,
                 }
             }
