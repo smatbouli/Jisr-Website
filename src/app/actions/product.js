@@ -368,3 +368,25 @@ export async function getProduct(id) {
         return null;
     }
 }
+
+export async function getLatestProducts(limit = 10) {
+    try {
+        const products = await prisma.product.findMany({
+            where: { status: 'APPROVED' },
+            take: limit,
+            orderBy: { createdAt: 'desc' },
+            include: {
+                factory: {
+                    select: {
+                        businessName: true,
+                        city: true
+                    }
+                }
+            }
+        });
+        return products;
+    } catch (error) {
+        console.error("Error fetching latest products:", error);
+        return [];
+    }
+}
