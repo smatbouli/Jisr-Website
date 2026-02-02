@@ -65,12 +65,29 @@ export default function ContentEditor({ initialHero, initialHeader, initialAbout
             phone: formData.get('contact_phone'),
         };
 
+        // 4. Process Other Homepage Content (New Sections)
+        const otherData = {};
+        // Iterate over form data to catch all the new dynamic keys we added (ending in _en or _ar)
+        // that are NOT part of the structure above.
+        // Or explicitly list them:
+        const otherKeys = [
+            'Saudi-based factories only', 'Verified before listing', 'Direct buyer-factory communication', 'Built for B2B sourcing',
+            'mission_title', 'A marketplace for serious manufacturing', 'mission_desc',
+            'featured_products', 'latest_additions_subtitle', 'footer_tagline'
+        ];
+
+        otherKeys.forEach(key => {
+            otherData[`${key}_en`] = formData.get(`${key}_en`);
+            otherData[`${key}_ar`] = formData.get(`${key}_ar`);
+        });
+
         try {
             // Update All Content
             const results = await Promise.all([
                 updateSiteContent('homepage_hero', heroData),
                 updateSiteContent('about_page', aboutData),
                 updateSiteContent('contact_page', contactData),
+                updateSiteContent('homepage_content', otherData),
                 updateSiteHeader(formData)
             ]);
 
@@ -138,7 +155,8 @@ export default function ContentEditor({ initialHero, initialHeader, initialAbout
                     <LayoutTemplate className="text-primary-600" />
                     <h2 className="text-xl font-bold">{t('homepage_hero_section')}</h2>
                 </div>
-                <div className="space-y-4">
+                {/* Hero Fields */}
+                <div className="space-y-4 mb-8">
                     <div className="grid md:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-1">Title Line 1</label>
@@ -149,29 +167,78 @@ export default function ContentEditor({ initialHero, initialHeader, initialAbout
                             <input name="highlight1" defaultValue={initialHero?.highlight1} className="w-full p-2 border rounded text-primary-600 font-bold focus:ring-2 focus:ring-primary-500 outline-none transition" required />
                         </div>
                     </div>
-                    {/* ... other hero fields ... */}
-                    <div className="grid md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-1">Title Line 2</label>
-                            <input name="title2" defaultValue={initialHero?.title2} className="w-full p-2 border rounded focus:ring-2 focus:ring-primary-500 outline-none transition" required />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-1">Highlight 2 (Italic)</label>
-                            <input name="highlight2" defaultValue={initialHero?.highlight2} className="w-full p-2 border rounded font-serif italic text-accent-600 focus:ring-2 focus:ring-primary-500 outline-none transition" required />
-                        </div>
-                    </div>
+                </div>
+
+                <div className="border-t pt-6 space-y-6">
+                    <h3 className="font-semibold text-gray-900">New Homepage Sections</h3>
+
+                    {/* Trust Strip */}
                     <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1">Description</label>
-                        <textarea name="description" defaultValue={initialHero?.description} rows={3} className="w-full p-2 border rounded focus:ring-2 focus:ring-primary-500 outline-none transition" required />
-                    </div>
-                    <div className="grid md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-1">Primary Button Text</label>
-                            <input name="ctaPrimary" defaultValue={initialHero?.ctaPrimary} className="w-full p-2 border rounded focus:ring-2 focus:ring-primary-500 outline-none transition" required />
+                        <h4 className="text-sm font-bold text-gray-700 mb-2">Trust Strip (Green Bar)</h4>
+                        <div className="grid md:grid-cols-2 gap-4">
+                            <input name="Saudi-based factories only_en" placeholder="Saudi-based factories only (EN)" className="w-full p-2 border rounded" />
+                            <input name="Saudi-based factories only_ar" placeholder="مصانع سعودية فقط (AR)" className="w-full p-2 border rounded text-right" />
+
+                            <input name="Verified before listing_en" placeholder="Verified before listing (EN)" className="w-full p-2 border rounded" />
+                            <input name="Verified before listing_ar" placeholder="تم التحقق قبل الإدراج (AR)" className="w-full p-2 border rounded text-right" />
+
+                            <input name="Direct buyer-factory communication_en" placeholder="Direct buyer-factory communication (EN)" className="w-full p-2 border rounded" />
+                            <input name="Direct buyer-factory communication_ar" placeholder="تواصل مباشر (AR)" className="w-full p-2 border rounded text-right" />
+
+                            <input name="Built for B2B sourcing_en" placeholder="Built for B2B sourcing (EN)" className="w-full p-2 border rounded" />
+                            <input name="Built for B2B sourcing_ar" placeholder="مبني لتوريد الشركات (AR)" className="w-full p-2 border rounded text-right" />
                         </div>
-                        <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-1">Secondary Button Text</label>
-                            <input name="ctaSecondary" defaultValue={initialHero?.ctaSecondary} className="w-full p-2 border rounded focus:ring-2 focus:ring-primary-500 outline-none transition" required />
+                    </div>
+
+                    {/* Mission Section */}
+                    <div>
+                        <h4 className="text-sm font-bold text-gray-700 mb-2">Mission Section</h4>
+                        <div className="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="text-xs text-gray-500 block mb-1">Title (EN)</label>
+                                <input name="mission_title_en" defaultValue="Our Mission" className="w-full p-2 border rounded" />
+                            </div>
+                            <div dir="rtl">
+                                <label className="text-xs text-gray-500 block mb-1">العنوان (AR)</label>
+                                <input name="mission_title_ar" defaultValue="مهمتنا" className="w-full p-2 border rounded" />
+                            </div>
+                            <div>
+                                <label className="text-xs text-gray-500 block mb-1">Heading (EN)</label>
+                                <input name="A marketplace for serious manufacturing_en" defaultValue="A marketplace for serious manufacturing" className="w-full p-2 border rounded" />
+                            </div>
+                            <div dir="rtl">
+                                <label className="text-xs text-gray-500 block mb-1">الترويسة (AR)</label>
+                                <input name="A marketplace for serious manufacturing_ar" defaultValue="سوق حقيقي للتصنيع الجاد" className="w-full p-2 border rounded" />
+                            </div>
+                            <div className="md:col-span-2">
+                                <label className="text-xs text-gray-500 block mb-1">Description (EN)</label>
+                                <textarea name="mission_desc_en" rows={2} className="w-full p-2 border rounded" placeholder="To empower Saudi manufacturers..." />
+                            </div>
+                            <div className="md:col-span-2" dir="rtl">
+                                <label className="text-xs text-gray-500 block mb-1">الوصف (AR)</label>
+                                <textarea name="mission_desc_ar" rows={2} className="w-full p-2 border rounded" placeholder="تمكين المصنعين السعوديين..." />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Featured Products */}
+                    <div>
+                        <h4 className="text-sm font-bold text-gray-700 mb-2">Featured Products</h4>
+                        <div className="grid md:grid-cols-2 gap-4">
+                            <input name="featured_products_en" defaultValue="Featured Products" className="w-full p-2 border rounded" />
+                            <input name="featured_products_ar" defaultValue="منتجات مميزة" className="w-full p-2 border rounded text-right" />
+
+                            <input name="latest_additions_subtitle_en" defaultValue="Latest additions from Saudi factories" className="w-full p-2 border rounded" />
+                            <input name="latest_additions_subtitle_ar" defaultValue="أحدث الإضافات من المصانع السعودية" className="w-full p-2 border rounded text-right" />
+                        </div>
+                    </div>
+
+                    {/* Footer */}
+                    <div>
+                        <h4 className="text-sm font-bold text-gray-700 mb-2">Footer Callout</h4>
+                        <div className="grid md:grid-cols-2 gap-4">
+                            <input name="footer_tagline_en" defaultValue="Jisr is Saudi's premier B2B manufacturing marketplace." className="w-full p-2 border rounded" />
+                            <input name="footer_tagline_ar" defaultValue="جسر هو السوق الصناعي الرائد في السعودية (B2B)." className="w-full p-2 border rounded text-right" />
                         </div>
                     </div>
                 </div>

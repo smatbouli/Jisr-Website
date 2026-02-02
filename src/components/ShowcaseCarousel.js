@@ -7,11 +7,20 @@ import { ArrowLeft, ArrowRight, ChevronRight, ArrowUpRight } from 'lucide-react'
 import { motion } from 'framer-motion';
 import { useLanguage } from './LanguageContext';
 
-export default function ShowcaseCarousel({ title, subtitle, products = [], linkText = "See all", linkHref = "/products" }) {
+export default function ShowcaseCarousel({ title, subtitle, products = [], linkText = "See all", linkHref = "/products", darkMode = false, cardTheme = "light" }) {
     const scrollRef = useRef(null);
     const [showLeftArrow, setShowLeftArrow] = useState(false);
     const [showRightArrow, setShowRightArrow] = useState(true);
     const { t, language } = useLanguage();
+
+    // ... existing scroll logic ...
+
+    // Helper for Card Styling
+    const isDarkCard = cardTheme === 'dark';
+    const cardBg = isDarkCard ? 'bg-[#072418] border-white/10' : 'bg-white border-gray-100';
+    const cardTextPrimary = isDarkCard ? 'text-white group-hover/card:text-[#4ade80]' : 'text-gray-900 group-hover/card:text-primary-600';
+    const cardTextSecondary = isDarkCard ? 'text-gray-400' : 'text-gray-500';
+    const cardMoqBg = isDarkCard ? 'bg-white/10 text-gray-300' : 'bg-gray-100 text-gray-600';
 
     const checkScroll = () => {
         if (scrollRef.current) {
@@ -30,23 +39,8 @@ export default function ShowcaseCarousel({ title, subtitle, products = [], linkT
     const scroll = (direction) => {
         if (scrollRef.current) {
             const { current } = scrollRef;
-            const scrollAmount = direction === 'left' ? -400 : 400;
-            // In RTL, left scroll increases scrollLeft in some browsers (negative in others), but generally logic needs care.
-            // For simple horizontal scroll in RTL, 'left' direction visually means moving content right (scrolling towards start).
-            // Actually, native scroll by left works relative to start usually. 
-            // In RTL: scrollLeft usually starts at 0 or negative.
-            // Let's rely on browser behavior but maybe cleaner to detect direction. 
-            // For now, let's keep it simple.
-            // But arrows should probably flip functionality in RTL? 
-            // If I click "Right Arrow" (visual right), I want to see more content.
-            // In LTR, more content is to the right (+scroll).
-            // In RTL, more content is to the left (-scroll or +scroll depending on impl).
-            // Standard CSS scroll-snap-x in RTL usually handles this.
-            // Let's just fix strings first.
-            const isRTL = language === 'ar';
-            const multiplier = isRTL ? -1 : 1;
-            const amount = (direction === 'left' ? -400 : 400) * multiplier;
-
+            const multiplier = language === 'ar' ? -1 : 1;
+            const amount = (direction === 'left' ? -400 : 400) * multiplier; // Simple logic
             current.scrollBy({ left: amount, behavior: 'smooth' });
         }
     };
@@ -54,20 +48,15 @@ export default function ShowcaseCarousel({ title, subtitle, products = [], linkT
     if (!products || products.length === 0) return null;
 
     return (
-        <div className="w-full py-12 group/section">
+        <div className="w-full py-12 group/section relative z-10">
             <div className="container mx-auto px-4 mb-8 flex items-end justify-between">
                 <div>
-                    <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
-                        {title} <span className="text-gray-400 font-normal ml-2">{subtitle}</span>
+                    <h2 className={`text-3xl md:text-4xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                        {title} <span className={`font-normal ml-2 ${darkMode ? 'text-white/60' : 'text-gray-400'}`}>{subtitle}</span>
                     </h2>
                 </div>
                 {linkHref && (
-                    <Link href={linkHref} className="hidden md:flex items-center text-sm font-medium text-primary-600 hover:underline gap-1">
-                        {/* If linkText is passed as prop, use it. If it's standard "See all", translate it. 
-                             But parent passes it. We'll assume parent passes translated strings or we map it here?
-                             Actually most calls pass a string. 
-                             Let's try to translate the prop if it matches a key, otherwise show it. 
-                         */}
+                    <Link href={linkHref} className={`hidden md:flex items-center text-sm font-medium hover:underline gap-1 ${darkMode ? 'text-green-300 hover:text-green-200' : 'text-primary-600 hover:text-primary-700'}`}>
                         {t(linkText) || linkText} <ChevronRight size={16} className={language === 'ar' ? 'rotate-180' : ''} />
                     </Link>
                 )}
@@ -75,23 +64,18 @@ export default function ShowcaseCarousel({ title, subtitle, products = [], linkT
 
             <div className="relative group/carousel">
                 {/* Navigation Arrows */}
-                {/* Visual Left Arrow */}
                 {showLeftArrow && (
                     <button
                         onClick={() => scroll('left')}
                         className={`absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-white/80 backdrop-blur-md rounded-full shadow-lg flex items-center justify-center text-gray-800 opacity-0 group-hover/carousel:opacity-100 transition-all duration-300 hover:scale-110 border border-gray-200`}
-                        aria-label="Scroll left"
                     >
                         <ArrowLeft size={24} className={language === 'ar' ? 'rotate-180' : ''} />
                     </button>
                 )}
-
-                {/* Visual Right Arrow */}
                 {showRightArrow && (
                     <button
                         onClick={() => scroll('right')}
                         className={`absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-white/80 backdrop-blur-md rounded-full shadow-lg flex items-center justify-center text-gray-800 opacity-0 group-hover/carousel:opacity-100 transition-all duration-300 hover:scale-110 border border-gray-200`}
-                        aria-label="Scroll right"
                     >
                         <ArrowRight size={24} className={language === 'ar' ? 'rotate-180' : ''} />
                     </button>
@@ -110,24 +94,24 @@ export default function ShowcaseCarousel({ title, subtitle, products = [], linkT
                                 <motion.div
                                     whileHover={{ scale: 1.02 }}
                                     transition={{ duration: 0.3 }}
-                                    className="h-[500px] md:h-[550px] bg-white rounded-[2rem] shadow-sm hover:shadow-2xl transition-all duration-500 overflow-hidden relative border border-gray-100 flex flex-col group/card"
+                                    className={`h-[500px] md:h-[550px] ${cardBg} rounded-[2rem] shadow-sm hover:shadow-2xl transition-all duration-500 overflow-hidden relative border flex flex-col group/card`}
                                 >
                                     {/* Text Content - Top */}
                                     <div className="p-8 z-10 relative">
                                         <p className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">
                                             {product.factory?.businessName || t('new_arrival') || "New Arrival"}
                                         </p>
-                                        <h3 className="text-3xl font-bold text-gray-900 mb-2 leading-tight group-hover/card:text-primary-600 transition-colors">
+                                        <h3 className={`text-3xl font-bold mb-2 leading-tight transition-colors ${cardTextPrimary}`}>
                                             {product.name}
                                         </h3>
-                                        <p className="text-gray-500 font-medium">
+                                        <p className={`font-medium ${cardTextSecondary}`}>
                                             {t('from') || 'From'} {product.priceMin && product.priceMax
                                                 ? `SAR ${product.priceMin} - ${product.priceMax}`
                                                 : "SAR " + (1000 + (product.name.length * 100))
                                             }
                                         </p>
                                         {product.moq && (
-                                            <span className="inline-block mt-3 px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md">
+                                            <span className={`inline-block mt-3 px-2 py-1 ${cardMoqBg} text-xs rounded-md`}>
                                                 {t('moq')}: {product.moq}
                                             </span>
                                         )}

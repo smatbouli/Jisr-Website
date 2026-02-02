@@ -33,6 +33,44 @@ import { cookies } from "next/headers";
 
 export default async function RootLayout({ children }) {
   const headerContent = await getSiteContent('site_header');
+
+  // Fetch all dynamic content
+  const heroContent = await getSiteContent('homepage_hero');
+  const aboutContent = await getSiteContent('about_page');
+  const contactContent = await getSiteContent('contact_page');
+  // New generalized content block for other homepage sections
+  const otherContent = await getSiteContent('homepage_content');
+
+  // Helper to merge content into { en: {}, ar: {} } structure
+  const mergeContent = (source = {}, target = { en: {}, ar: {} }) => {
+    if (!source) return target;
+    Object.keys(source).forEach(key => {
+      // Convention: key_en, key_ar
+      if (key.endsWith('_en')) {
+        const baseKey = key.replace('_en', '');
+        target.en[baseKey] = source[key];
+      } else if (key.endsWith('_ar')) {
+        const baseKey = key.replace('_ar', '');
+        target.ar[baseKey] = source[key];
+      } else {
+        // If no suffix, it might be common or handle separately. 
+        // For hero, we might have specific mapping or stick to strict naming locally.
+        // For 'hero', currently structure is { title1, highlight1... }
+        // We will need to update ContentEditor to save as title1_en, title1_ar etc if we want full dynamic.
+        // Or we map manually for now for specific legacy keys.
+        target.en[key] = source[key];
+        target.ar[key] = source[key]; // Fallback/Common
+      }
+    });
+    return target;
+  };
+
+  const dynamicTranslations = { en: {}, ar: {} };
+  mergeContent(heroContent, dynamicTranslations);
+  mergeContent(aboutContent, dynamicTranslations);
+  mergeContent(contactContent, dynamicTranslations);
+  mergeContent(otherContent, dynamicTranslations);
+
   const cookieStore = await cookies();
   const locale = cookieStore.get('NEXT_LOCALE')?.value || 'en';
   const direction = locale === 'ar' ? 'rtl' : 'ltr';
@@ -41,7 +79,7 @@ export default async function RootLayout({ children }) {
     <html lang={locale} dir={direction} className={`${inter.variable} ${playfair.variable} ${notoSansArabic.variable}`} suppressHydrationWarning>
       <body suppressHydrationWarning>
         <Providers>
-          <LanguageProvider initialLanguage={locale}>
+          <LanguageProvider initialLanguage={locale} dynamicTranslations={dynamicTranslations}>
             <Header initialLogoText={headerContent?.logoText} initialLogoUrl={headerContent?.logoUrl} />
             {children}
           </LanguageProvider>

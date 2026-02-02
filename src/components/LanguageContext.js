@@ -6,7 +6,7 @@ import { ar } from '@/locales/ar';
 
 const LanguageContext = createContext();
 
-export function LanguageProvider({ children, initialLanguage = 'en' }) {
+export function LanguageProvider({ children, initialLanguage = 'en', dynamicTranslations = {} }) {
     const [language, setLanguage] = useState(initialLanguage);
 
     const updateDirection = (lang) => {
@@ -51,6 +51,14 @@ export function LanguageProvider({ children, initialLanguage = 'en' }) {
     const translations = { en, ar };
 
     const t = (key) => {
+        // 1. Check dynamic translations first (DB)
+        // Format: dynamicTranslations['your_key'] -> returns { en: "...", ar: "..." } or just the string if pre-processed
+        // We expect dynamicTranslations to be: { en: { key: val }, ar: { key: val } } passed from layout.
+        if (dynamicTranslations && dynamicTranslations[language] && dynamicTranslations[language][key]) {
+            return dynamicTranslations[language][key];
+        }
+
+        // 2. Fallback to static files
         return translations[language][key] || key;
     };
 
