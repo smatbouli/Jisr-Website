@@ -54,8 +54,7 @@ export async function POST(req) {
                 create: {
                     email,
                     password: await hash('Admin123!', 10),
-                    role: 'ADMIN',
-                    isVerified: true
+                    role: 'ADMIN'
                 }
             });
 
