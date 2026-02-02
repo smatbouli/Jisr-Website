@@ -79,20 +79,17 @@ export async function POST(req) {
             text: `Your verification code is: ${newUser.verificationCode}`
         });
         */
-    } catch (emailError) {
-        console.error('Email sending failed:', emailError);
-        // Don't fail the request if email fails, but log it
-    }
 
-    return NextResponse.json(
-        { message: 'User created. Please verify email.', email: newUser.email },
-        { status: 201 }
-    );
-} catch (error) {
-    console.error('Registration error details:', error);
-    return NextResponse.json(
-        { message: 'Internal server error: ' + (error.message || 'Unknown') },
-        { status: 500 }
-    );
-}
+
+        return NextResponse.json(
+            { message: 'User created. Please verify email.', email: newUser.email },
+            { status: 201 }
+        );
+    } catch (error) {
+        console.error('Registration error details:', error);
+        return NextResponse.json(
+            { message: 'Internal server error: ' + (error.message || 'Unknown') },
+            { status: 500 }
+        );
+    }
 }
