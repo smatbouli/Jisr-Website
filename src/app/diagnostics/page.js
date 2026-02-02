@@ -20,10 +20,10 @@ export default function DiagnosticsPage() {
         }
     };
 
-    const fixAdmin = async () => {
+    const checkSession = async () => {
         setLoading(true);
         try {
-            const res = await fetch('/api/diagnostics', { method: 'POST', body: JSON.stringify({ action: 'fix_admin' }) });
+            const res = await fetch('/api/diagnostics', { method: 'POST', body: JSON.stringify({ action: 'check_session' }) });
             const data = await res.json();
             setResults(data);
         } catch (error) {
@@ -39,6 +39,7 @@ export default function DiagnosticsPage() {
             <div className="space-x-4 mb-6">
                 <Button onClick={runDiagnostics} disabled={loading}>Run Check</Button>
                 <Button onClick={fixAdmin} disabled={loading} variant="secondary">Force Fix Admin</Button>
+                <Button onClick={checkSession} disabled={loading} variant="default">Check Session</Button>
             </div>
 
             {loading && <div>Running...</div>}

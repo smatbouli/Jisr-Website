@@ -1,12 +1,21 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { hash } from 'bcryptjs';
+import { auth } from '@/auth';
 
 export async function POST(req) {
     const body = await req.json();
     const { action } = body;
 
     try {
+        if (action === 'check_session') {
+            const session = await auth();
+            return NextResponse.json({
+                session: session || 'NO SESSION',
+                cookies: req.cookies.getAll() // Inspect cookies
+            });
+        }
+
         if (action === 'check') {
             // 1. Check DB Connection
             const userCount = await prisma.user.count();
