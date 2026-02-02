@@ -12,7 +12,11 @@ export async function POST(req) {
             const session = await auth();
             return NextResponse.json({
                 session: session || 'NO SESSION',
-                cookies: req.cookies.getAll() // Inspect cookies
+                cookies: req.cookies.getAll(),
+                debug: {
+                    hasAuthSecret: !!process.env.AUTH_SECRET,
+                    nodeEnv: process.env.NODE_ENV
+                }
             });
         }
 
