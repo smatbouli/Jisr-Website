@@ -174,6 +174,8 @@ export const ar = {
     'hero_cta_primary': 'ابدأ التوريد',
     'hero_cta_secondary': 'تصفح الدليل',
     'verification_status': 'حالة التحقق',
+    'hero_title_redesign': 'شراء مباشر من المصانع السعودية',
+    'hero_desc_redesign': 'سوق B2B يربط الشركات بالمصنعين الموثقين في جميع أنحاء المملكة العربية السعودية - مصمم للتوريد والمشتريات والتوسع.',
     'verified_factory': 'مصنع موثق',
 
     // Stats

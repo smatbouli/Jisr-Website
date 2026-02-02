@@ -5,7 +5,7 @@ import { getNotifications, getUnreadCount, markAsRead } from '@/app/actions/noti
 import Link from 'next/link';
 import { Bell } from 'lucide-react';
 
-export default function NotificationBell() {
+export default function NotificationBell({ iconColor }) {
     const [isOpen, setIsOpen] = useState(false);
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
@@ -57,7 +57,7 @@ export default function NotificationBell() {
         <div className="relative" ref={dropdownRef}>
             <button
                 onClick={toggleDropdown}
-                className="relative p-2 text-gray-600 hover:bg-gray-100 rounded-full transition"
+                className={`relative p-2 rounded-full hover:bg-black/5 transition ${iconColor || 'text-gray-600'}`}
             >
                 <Bell size={20} />
                 {unreadCount > 0 && (

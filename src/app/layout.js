@@ -39,7 +39,7 @@ export default async function RootLayout({ children }) {
 
   return (
     <html lang={locale} dir={direction} className={`${inter.variable} ${playfair.variable} ${notoSansArabic.variable}`} suppressHydrationWarning>
-      <body suppressHydrationWarning className="pt-20">
+      <body suppressHydrationWarning>
         <Providers>
           <LanguageProvider initialLanguage={locale}>
             <Header initialLogoText={headerContent?.logoText} initialLogoUrl={headerContent?.logoUrl} />

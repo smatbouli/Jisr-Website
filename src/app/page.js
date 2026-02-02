@@ -2,260 +2,344 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, CheckCircle, ShieldCheck, TrendingUp, Globe } from "lucide-react";
-import { useState, useEffect } from "react";
+import { ArrowRight, CheckCircle, ShieldCheck, TrendingUp, Globe, Building2, Search, ArrowUpRight } from "lucide-react";
 import { useLanguage } from "@/components/LanguageContext";
-import ShowcaseCarousel from "@/components/ShowcaseCarousel";
-import { getSiteContent } from "@/app/actions/content";
-import { getRandomProducts } from "@/app/actions/product";
+import KSAMapBackground from "@/components/KSAMapBackground";
+import CircuitBackground from "@/components/CircuitBackground";
+import InteractiveGrid from "@/components/InteractiveGrid";
 
 export default function Home() {
   const { t, language } = useLanguage();
-  const [latestProducts, setLatestProducts] = useState([]);
-  const [topProducts, setTopProducts] = useState([]);
-  const [heroContent, setHeroContent] = useState({
-    title1: 'The heart of Saudi',
-    highlight1: 'Manufacturing',
-    title2: 'Connecting you to',
-    highlight2: 'verified factories',
-    description: 'Discover the power of local production. Connect directly with over 500+ verified Saudi factories and streamline your supply chain today.',
-    ctaPrimary: 'Get Started',
-    ctaSecondary: 'Browse Factories'
-  });
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const content = await getSiteContent('homepage_hero');
-        if (content) setHeroContent(content);
-
-        // Fetch two sets of products (simulating latest vs top selling)
-        const latest = await getRandomProducts(8);
-        if (Array.isArray(latest)) setLatestProducts(latest);
-
-        const top = await getRandomProducts(8);
-        if (Array.isArray(top)) setTopProducts(top);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-    fetchData();
-  }, []);
+  const isArabic = language === 'ar';
 
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.2 } },
+    visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } },
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
   };
 
-  const isArabic = language === 'ar';
-
   return (
-    <div className={`flex flex-col min-h-screen font-sans text-gray-900 overflow-x-hidden ${isArabic ? 'font-arabic' : ''}`} dir={isArabic ? 'rtl' : 'ltr'}>
+    <div className={`flex flex-col min-h-screen font-sans overflow-x-hidden ${isArabic ? 'font-arabic' : ''}`} dir={isArabic ? 'rtl' : 'ltr'}>
+      {/* 2. Hero Section - Refined & Animated */}
+      <section className="-mt-20 relative w-full min-h-[90vh] flex items-center bg-[#072418] text-white pt-48 pb-32 overflow-hidden">
+        {/* Background: Map & Gradients */}
+        <div className="absolute inset-x-0 bottom-0 top-0 overflow-hidden pointer-events-none">
+          <div className="absolute inset-0 bg-gradient-to-r from-[#072418] via-[#072418]/60 to-transparent" />
 
-      {/* Hero Section */}
-      <section className="relative w-full h-[90vh] flex items-center justify-center bg-surface-50 overflow-hidden">
-        {/* Background Decoration */}
-        <div className="absolute inset-0 z-0 opacity-10">
-          <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-primary-900 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-accent-500 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+          <KSAMapBackground className="absolute right-0 top-10 w-[600px] h-[600px] opacity-80 text-[#4ade80] rotate-[-5deg]" />
+          <CircuitBackground />
+
+          {/* Subtle floating particles */}
+          <motion.div
+            animate={{ opacity: [0.1, 0.3, 0.1], scale: [1, 1.2, 1] }}
+            transition={{ duration: 8, repeat: Infinity }}
+            className="absolute top-1/4 right-1/4 w-96 h-96 bg-green-500/10 rounded-full blur-3xl"
+          />
         </div>
 
-        <div className="container px-4 z-10 grid md:grid-cols-2 gap-12 items-center">
+        {/* Interactive Grid Overlay */}
+        <InteractiveGrid />
+
+        <div className="container mx-auto px-4 z-10 grid lg:grid-cols-2 gap-12 items-center">
+          {/* Left Copy */}
           <motion.div
             initial="hidden"
             animate="visible"
             variants={containerVariants}
-            className="text-left"
+            className="max-w-xl relative"
           >
-            <motion.span variants={itemVariants} className="inline-block px-3 py-1 bg-accent-100 text-accent-800 rounded-full text-xs font-bold tracking-widest uppercase mb-4">
-              {t('hero_badge')}
-            </motion.span>
-            <motion.h1 variants={itemVariants} className={`text-5xl md:text-7xl font-bold text-primary-950 leading-tight mb-6 ${isArabic ? 'font-arabic' : 'font-heading'}`}>
-              {/* Use dynamic content for English, fallback/t() for Arabic if needed (or make CMS multilingual later) */}
-              {isArabic ? t('hero_title_1') : heroContent.title1} <span className="text-primary-600">{isArabic ? t('hero_title_highlight') : heroContent.highlight1}</span> <br />
-              {isArabic ? t('hero_title_2') : heroContent.title2} <span className="italic text-accent-600">{isArabic ? t('hero_title_highlight_2') : heroContent.highlight2}</span>
+            {/* Decorative line */}
+            <motion.div variants={itemVariants} className="w-20 h-1 bg-green-500 mb-8 rounded-full" />
+
+            <motion.h1
+              variants={itemVariants}
+              className={`text-5xl md:text-7xl font-sans font-medium tracking-tight leading-[1.1] mb-6 ${isArabic ? 'font-arabic font-bold' : ''}`}
+            >
+              {t('hero_title_redesign')}
             </motion.h1>
-            <motion.p variants={itemVariants} className="text-lg md:text-xl text-gray-600 mb-8 max-w-lg leading-relaxed">
-              {isArabic ? t('hero_desc') : heroContent.description}
+            <motion.p variants={itemVariants} className="text-gray-400 text-lg md:text-xl mb-10 max-w-lg leading-relaxed font-light">
+              {t('hero_desc_redesign')}
             </motion.p>
-            <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4">
-              <Link href="/signup" className="group px-8 py-4 bg-primary-900 text-white rounded-full font-medium hover:bg-primary-800 transition-all shadow-lg hover:shadow-primary-900/30 flex items-center justify-center gap-2">
-                {isArabic ? t('hero_cta_primary') : heroContent.ctaPrimary}
-                <ArrowRight size={18} className={`transition-transform ${isArabic ? 'group-hover:-translate-x-1 rotate-180' : 'group-hover:translate-x-1'}`} />
+            <motion.div variants={itemVariants} className="flex flex-wrap gap-4">
+              <Link href="/factories" className="relative overflow-hidden group px-8 py-3.5 border border-white/20 text-white rounded-full font-medium transition-all hover:border-green-400">
+                <span className="relative z-10">{t('Browse Factories')}</span>
+                <div className="absolute inset-0 bg-green-500/10 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500" />
               </Link>
-              <Link href="/factories" className="px-8 py-4 bg-white text-primary-900 border border-gray-200 rounded-full font-medium hover:bg-gray-50 transition-all shadow-sm hover:shadow-md flex items-center justify-center">
-                {isArabic ? t('hero_cta_secondary') : heroContent.ctaSecondary}
+              <Link href="/contact" className="px-8 py-3.5 bg-[#d1fae5] text-[#064e3b] rounded-full font-medium hover:bg-[#a7f3d0] hover:shadow-lg hover:shadow-green-400/20 transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
+                {t('Request Access')}
               </Link>
             </motion.div>
           </motion.div>
 
-          {/* Abstract Hero Visual */}
+          {/* Right Abstract UI - Animated Complex Card */}
           <motion.div
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 1, delay: 0.4 }}
-            className="relative h-[600px] w-full hidden md:block"
+            transition={{ duration: 1, delay: 0.2, type: "spring" }}
+            className="relative hidden lg:block h-[600px] w-full flex items-center justify-center p-10 perspective-[2000px]"
           >
-            <div className="absolute inset-0 bg-gradient-to-tr from-primary-900 to-primary-600 rounded-2xl shadow-2xl overflow-hidden">
-              <div className="absolute inset-0 opacity-30 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-repeat" />
-              {/* Floating Cards simulating UI */}
-              <motion.div
-                animate={{ y: [0, -20, 0] }}
-                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute top-20 left-10 right-10 bg-white/90 backdrop-blur rounded-lg p-6 shadow-xl"
-              >
-                <div className="flex justify-between items-center mb-4">
-                  <div className="w-1/3 h-4 bg-gray-200 rounded animate-pulse" />
-                  <div className="w-8 h-8 bg-green-100 rounded-full" />
-                </div>
-                <div className="space-y-3">
-                  <div className="w-full h-2 bg-gray-100 rounded" />
-                  <div className="w-5/6 h-2 bg-gray-100 rounded" />
-                </div>
-              </motion.div>
-              <motion.div
-                animate={{ y: [0, 15, 0] }}
-                transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                className="absolute bottom-32 right-10 w-64 bg-surface-50 p-4 rounded-lg shadow-2xl border border-white/20"
-              >
-                <div className="flex gap-3 items-center">
-                  <div className="bg-accent-500 rounded-full p-2 text-white">
-                    <CheckCircle size={16} />
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500 font-bold">{t('verification_status')}</p>
-                    <p className="font-bold text-primary-900">{t('verified_factory')}</p>
+            {/* Layer 2: Background Blur Card (Floating) */}
+            <motion.div
+              animate={{ y: [-10, 10, -10], rotate: [-6, -4, -6] }}
+              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute top-12 right-12 w-[380px] h-[260px] bg-white/5 backdrop-blur-sm rounded-3xl border border-white/5 shadow-2xl"
+            />
+
+            {/* Layer 1: Main Glass Card (Floating opposing) */}
+            <motion.div
+              animate={{ y: [10, -10, 10] }}
+              transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+              className="relative w-[450px] bg-[#0f3526]/80 backdrop-blur-xl rounded-3xl border border-white/10 p-8 shadow-2xl ring-1 ring-white/10"
+            >
+              {/* Shining effect */}
+              <div className="absolute inset-0 rounded-3xl overflow-hidden pointer-events-none">
+                <div className="absolute -top-[100%] -left-[100%] w-[300%] h-[300%] bg-gradient-to-br from-transparent via-white/5 to-transparent rotate-45 animate-shine" />
+              </div>
+
+              {/* Card Header */}
+              <div className="flex justify-between items-start mb-8">
+                <div>
+                  <h3 className="text-xl text-white font-medium mb-1">{t('Factory Profile')}</h3>
+                  <div className="flex gap-1">
+                    <div className="h-1 w-8 bg-green-500 rounded-full" />
+                    <div className="h-1 w-2 bg-green-500/50 rounded-full" />
                   </div>
                 </div>
-              </motion.div>
-            </div>
+                <div className="p-3 bg-white/5 rounded-xl border border-white/10 shadow-inner">
+                  <Building2 size={24} className="text-green-400" />
+                </div>
+              </div>
+
+              {/* Card Content - Data Rows */}
+              <div className="space-y-6 mb-8">
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 }}
+                  className="flex justify-between items-center border-b border-white/5 pb-3 group"
+                >
+                  <span className="text-gray-400 text-sm font-light">Factory</span>
+                  <span className="text-white font-mono text-sm tracking-wide group-hover:text-green-300 transition-colors">SAUDI PAPER</span>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.7 }}
+                  className="flex justify-between items-center border-b border-white/5 pb-3"
+                >
+                  <span className="text-gray-400 text-sm font-light">Location</span>
+                  <span className="text-white font-mono text-sm tracking-wide">Riyadh, SA</span>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.9 }}
+                  className="flex justify-between items-center border-b border-white/5 pb-3"
+                >
+                  <span className="text-gray-400 text-sm font-light">Operation</span>
+                  <div className="flex items-center gap-2">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                    </span>
+                    <span className="text-white font-mono text-sm tracking-wide">Active</span>
+                  </div>
+                </motion.div>
+              </div>
+
+              {/* Card Footer - Badges */}
+              <div className="flex items-center justify-between">
+                <div className="px-4 py-2 bg-black/20 rounded-full border border-white/5 flex items-center gap-2">
+                  <span className="text-xs text-gray-400">Permit:</span>
+                  <span className="text-xs text-white font-mono">#IND-9321</span>
+                </div>
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  className="px-5 py-2.5 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-[#78350f] rounded-full text-sm font-bold flex items-center gap-2 shadow-lg shadow-orange-500/20 cursor-default"
+                >
+                  <ShieldCheck size={16} />
+                  {t('Verified Factory')}
+                </motion.div>
+              </div>
+            </motion.div>
           </motion.div>
         </div>
       </section>
 
-      {/* Stats / Trust Section */}
-      <section className="py-20 bg-white border-b border-gray-100">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            {[
-              { label: t('stat_factories'), value: "500+" },
-              { label: t('stat_buyers'), value: "2,000+" },
-              { label: t('stat_transactions'), value: "$4.5M+" },
-              { label: t('stat_satisfaction'), value: "99%" },
-            ].map((stat, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-              >
-                <h3 className={`text-4xl font-bold text-primary-900 mb-2 ${isArabic ? 'font-arabic' : 'font-heading'}`}>{stat.value}</h3>
-                <p className="text-gray-500 uppercase tracking-wider text-xs font-bold">{stat.label}</p>
-              </motion.div>
-            ))}
+      {/* 3. Trust Strip */}
+      <section className="bg-[#081f18] border-t border-white/10 py-8 text-gray-300">
+        <div className="container mx-auto px-4 flex flex-wrap justify-between items-center gap-6 text-sm font-medium">
+          <div className="flex items-center gap-3">
+            <Building2 size={18} className="text-[#4ade80]" />
+            <span>{t('Saudi-based factories only')}</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <ShieldCheck size={18} className="text-[#4ade80]" />
+            <span>{t('Verified before listing')}</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <Search size={18} className="text-[#4ade80]" />
+            <span>{t('Direct buyer-factory communication')}</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <TrendingUp size={18} className="text-[#4ade80]" />
+            <span>{t('Built for B2B sourcing')}</span>
           </div>
         </div>
       </section>
 
-      {/* Featured Products Carousel - The Latest */}
-      <section className="bg-white">
-        <ShowcaseCarousel
-          title={isArabic ? "أحدث المنتجات" : "The latest."}
-          subtitle={isArabic ? "ألق نظرة على ما هو جديد الآن." : "Take a look at what’s new, right now."}
-          products={latestProducts}
-          linkHref="/products"
-          linkText={t('view_all_products')}
-        />
-      </section>
-
-      {/* Value Proposition (How it Works) */}
-      <section className="py-32 bg-surface-50">
-        <div className="container mx-auto px-4">
-          <div className="text-center max-w-2xl mx-auto mb-20">
-            <h2 className={`text-3xl md:text-5xl font-bold text-primary-950 mb-6 ${isArabic ? 'font-arabic' : 'font-heading'}`}>{t('features_title')}</h2>
-            <p className="text-gray-600">{t('features_desc')}</p>
+      {/* 4. What Jisr Is */}
+      <section className="py-24 bg-white">
+        <div className="container mx-auto px-4 grid md:grid-cols-2 gap-16 items-center">
+          <div>
+            <span className="text-[#0d2e23] font-bold tracking-widest uppercase text-sm mb-2 block">{t('Our Mission')}</span>
+            <h2 className={`text-4xl font-bold text-[#0d2e23] mb-6 ${isArabic ? 'font-arabic' : 'font-heading'}`}>
+              {t('A marketplace for serious manufacturing')}
+            </h2>
+            <p className="text-gray-600 text-lg leading-relaxed mb-6">
+              {t('mission_desc') || "Jisr enables businesses to buy directly from Saudi factories without intermediaries. Factories listed on Jisr are reviewed for legal registration, operational status, and production capability before being made available to buyers."}
+            </p>
+            <Link href="/about" className="inline-flex items-center text-[#0d2e23] font-bold hover:underline">
+              {t('Read more about us')} <ArrowUpRight size={16} className="ml-1" />
+            </Link>
           </div>
-
-          <div className="grid md:grid-cols-3 gap-12">
-            {[
-              { icon: Globe, title: t('feature_1_title'), desc: t('feature_1_desc') },
-              { icon: TrendingUp, title: t('feature_2_title'), desc: t('feature_2_desc') },
-              { icon: ShieldCheck, title: t('feature_3_title'), desc: t('feature_3_desc') },
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.2 }}
-                className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-shadow border border-gray-100 group"
-              >
-                <div className="w-14 h-14 bg-primary-50 rounded-xl flex items-center justify-center text-primary-600 mb-6 group-hover:bg-primary-600 group-hover:text-white transition-colors">
-                  <item.icon size={28} />
+          <div className="bg-[#f3f4f6] rounded-2xl p-8 min-h-[300px] flex items-center justify-center">
+            <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-sm">
+              {/* Mockup Data */}
+              <div className="flex justify-between items-center border-b pb-4 mb-4">
+                <div className="font-bold text-gray-900">Factory Profile</div>
+              </div>
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Industry</span>
+                  <span className="font-mono">Packaging</span>
                 </div>
-                <h3 className="text-xl font-bold text-primary-900 mb-3">{item.title}</h3>
-                <p className="text-gray-600 leading-relaxed">{item.desc}</p>
-              </motion.div>
-            ))}
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Capacity</span>
+                  <span className="font-mono">1.2M Units/Mo</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Location</span>
+                  <span className="font-mono">Riyadh, SA</span>
+                </div>
+                <div className="pt-4 flex gap-2">
+                  <span className="px-3 py-1 bg-gray-100 rounded text-xs">From 1998</span>
+                  <span className="px-3 py-1 bg-[#e8f5e9] text-[#15803d] rounded text-xs font-bold border border-[#15803d]/20">Verified</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. For Buyers & Factories */}
+      <section className="py-24 bg-[#f8fafc]">
+        <div className="container mx-auto px-4 grid md:grid-cols-2 gap-12">
+          {/* Buyers */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="p-8 md:p-12 rounded-3xl bg-white border border-gray-100 shadow-sm"
+          >
+            <h3 className="text-2xl font-bold text-[#0d2e23] mb-2">{t('For Buyers')}</h3>
+            <p className="text-gray-500 mb-8">{t('Source locally. Reduce risk.')}</p>
+            <ul className="space-y-4 mb-8">
+              {[
+                'Verified Saudi manufacturers',
+                'Clear production capabilities',
+                'Faster lead times',
+                'Direct communication'
+              ].map((item, i) => (
+                <li key={i} className="flex items-center gap-3 text-gray-700">
+                  <div className="bg-[#0d2e23] text-white rounded-full p-1"><CheckCircle size={12} /></div>
+                  {t(item)}
+                </li>
+              ))}
+            </ul>
+            <Link href="/signup" className="block w-full py-4 text-center bg-[#0d2e23] text-white rounded-xl font-bold hover:bg-[#1a4731] transition-colors">
+              {t('Browse Factories')}
+            </Link>
+          </motion.div>
+
+          {/* Factories */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="p-8 md:p-12 rounded-3xl bg-[#e6ebe9] border border-transparent"
+          >
+            <h3 className="text-2xl font-bold text-[#0d2e23] mb-2">{t('For Factories')}</h3>
+            <p className="text-gray-500 mb-8">{t('Connect with qualified buyers.')}</p>
+            <ul className="space-y-4 mb-8">
+              {[
+                'Verification-based listing',
+                'Buyer-only access',
+                'Capability-focused profiles',
+                'Long-term supply relationships'
+              ].map((item, i) => (
+                <li key={i} className="flex items-center gap-3 text-gray-700">
+                  <div className="bg-[#0d2e23] text-white rounded-full p-1"><CheckCircle size={12} /></div>
+                  {t(item)}
+                </li>
+              ))}
+            </ul>
+            <Link href="/signup?role=factory" className="block w-full py-4 text-center bg-transparent border-2 border-[#0d2e23] text-[#0d2e23] rounded-xl font-bold hover:bg-[#0d2e23] hover:text-white transition-colors">
+              {t('Apply as a Factory')}
+            </Link>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* 7. Verification Section */}
+      <section className="py-24 bg-[#0d2e23] text-white relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-[#134e3b] to-transparent opacity-20 pointer-events-none" />
+        <div className="container mx-auto px-4 grid md:grid-cols-2 gap-16 items-center relative z-10">
+          <div>
+            <span className="inline-block px-3 py-1 border border-[#4ade80]/30 text-[#4ade80] rounded-full text-xs font-bold mb-6">
+              {t('Browse Profile')}
+            </span>
+            <h2 className={`text-4xl md:text-5xl font-bold mb-6 ${isArabic ? 'font-arabic' : 'font-heading'}`}>
+              {t('Verified before listed')}
+            </h2>
+            <p className="text-gray-300 text-lg leading-relaxed mb-8">
+              {t('verification_desc') || "Factories on Jisr undergo verification before appearing on the platform. This includes legal registration, operational readiness, and manufacturing capability. Jisr is not an open directory. Only approved Saudi factories are listed."}
+            </p>
+          </div>
+          <div className="bg-[#1a4731] p-8 rounded-2xl border border-white/10">
+            <h3 className="text-xl font-bold mb-6">{t('For Factories')}</h3>
+            <p className="text-gray-300 mb-8">{t('Connect with qualified buyers')}</p>
+            <ul className="space-y-4 mb-8">
+              {['Verification-based listing', 'Buyer-only access', 'Capability-focused profiles', 'Long-term supply relationships'].map((item, i) => (
+                <li key={i} className="flex items-center gap-3 text-gray-200">
+                  <CheckCircle size={16} className="text-[#4ade80]" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <button className="w-full py-3 bg-[#e8f5e9] text-[#0d2e23] font-bold rounded-lg hover:bg-white transition-colors">
+              {t('Apply as a Factory')}
+            </button>
           </div>
         </div>
       </section>
 
-      {/* Top Selling Products */}
-      <section className="bg-surface-50 pb-16">
-        <ShowcaseCarousel
-          title={isArabic ? "الأكثر مبيعاً" : "Top-selling."}
-          subtitle={isArabic ? "الخيار المفضل للمشترين هذا الأسبوع." : "Buyer favorites this week."}
-          products={topProducts}
-          linkHref="/products"
-          linkText={t('view_all_products')}
-        />
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-24 bg-primary-900 text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10" />
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className="container mx-auto px-4 text-center relative z-10"
-        >
-          <h2 className={`text-4xl md:text-5xl font-bold mb-8 text-white ${isArabic ? 'font-arabic' : 'font-heading'}`}>{t('cta_title')}</h2>
-          <p className="text-primary-100 max-w-xl mx-auto mb-10 text-lg">{t('cta_desc')}</p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/signup" className="px-10 py-4 bg-accent-600 text-white rounded-full font-bold shadow-lg hover:bg-accent-500 hover:scale-105 transition-all">
-              {t('cta_btn_primary')}
+      {/* 8. Final CTA */}
+      <section className="py-24 bg-gradient-to-b from-[#081f18] to-black text-center text-white">
+        <div className="container mx-auto px-4 max-w-3xl">
+          <h2 className={`text-4xl md:text-5xl font-bold mb-10 leading-tight ${isArabic ? 'font-arabic' : 'font-heading'}`}>
+            {t('Start buying from Saudi factories with confidence')}
+          </h2>
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <Link href="/factories" className="px-10 py-4 bg-transparent border border-white/30 rounded-full font-bold hover:bg-white/10 transition-colors">
+              {t('Browse Factories')}
             </Link>
-            <Link href="/factories" className="px-10 py-4 bg-transparent border border-white/30 text-white rounded-full font-bold hover:bg-white/10 transition-all">
-              {t('cta_btn_secondary')}
+            <Link href="/contact" className="px-10 py-4 bg-[#1a4731] text-white rounded-full font-bold hover:bg-[#235e41] transition-colors">
+              {t('Request Access')}
             </Link>
           </div>
-        </motion.div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-primary-950 text-white py-12 border-t border-white/10">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="mb-4 md:mb-0">
-              <span className={`text-2xl font-bold ${isArabic ? 'font-arabic' : 'font-heading'}`}>Jisr</span>
-              <p className="text-primary-400 text-sm mt-1">{t('rights_reserved')}</p>
-            </div>
-            <div className="flex gap-8 text-sm text-primary-300">
-              <Link href="#" className="hover:text-white transition">{t('privacy')}</Link>
-              <Link href="#" className="hover:text-white transition">{t('terms')}</Link>
-              <Link href="#" className="hover:text-white transition">{t('support')}</Link>
-            </div>
-          </div>
+          <p className="mt-12 text-gray-500 text-sm">Jisr is Saudi's premier B2B manufacturing marketplace.</p>
         </div>
-      </footer>
+      </section>
     </div>
   );
 }

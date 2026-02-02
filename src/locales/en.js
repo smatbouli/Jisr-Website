@@ -25,6 +25,8 @@ export const en = {
     'hero_cta_primary': 'Start Sourcing',
     'hero_cta_secondary': 'View Directory',
     'verification_status': 'Verification Status',
+    'hero_title_redesign': 'Buy Directly from Saudi Factories',
+    'hero_desc_redesign': 'A B2B marketplace connecting businesses with verified manufacturers across Saudi Arabia — built for sourcing, procurement, and scale.',
     'verified_factory': 'Verified Factory',
 
     // Stats
