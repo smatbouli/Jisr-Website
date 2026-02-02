@@ -28,6 +28,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     }
                 })
 
+                // --- TEMPORARY FIX: Force Admin Role ---
+                if (user && user.email === 'admin@sinaa.com' && user.role !== 'ADMIN') {
+                    console.log('Use found but has wrong role. Fixing admin role...');
+                    const updatedUser = await prisma.user.update({
+                        where: { email: 'admin@sinaa.com' },
+                        data: { role: 'ADMIN' }
+                    });
+                    user.role = 'ADMIN'; // Update local object to allow immediate login
+                }
+                // ---------------------------------------
+
                 if (!user || !user.password) {
                     return null
                 }
