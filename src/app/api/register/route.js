@@ -5,7 +5,12 @@ import prisma from '@/lib/prisma';
 export async function POST(req) {
     try {
         const body = await req.json();
-        const { email, password, role, businessName, fullName } = body;
+        let { email, password, role, businessName, fullName } = body;
+
+        // Default role to BUYER if not provided or invalid
+        if (!role) {
+            role = 'BUYER';
+        }
 
         if (!email || !password || !businessName || !fullName) {
             return NextResponse.json(
@@ -37,7 +42,7 @@ export async function POST(req) {
                 data: {
                     email,
                     password: hashedPassword,
-                    role: role || 'BUYER',
+                    role: role, // Use the sanitized role
                     isVerified: false,
                     verificationCode
                 },
@@ -66,22 +71,27 @@ export async function POST(req) {
             return user;
         });
 
-        // Send OTP via Mock Email
-        const { sendEmail } = await import('@/lib/notifications-external');
-        await sendEmail({
-            to: email,
-            subject: 'Verify your Jisr Account',
-            text: `Your verification code is: ${newUser.verificationCode}`
-        });
+        try {
+            // Send OTP via Mock Email
+            const { sendEmail } = await import('@/lib/notifications-external');
+            await sendEmail({
+                to: email,
+                subject: 'Verify your Jisr Account',
+                text: `Your verification code is: ${newUser.verificationCode}`
+            });
+        } catch (emailError) {
+            console.error('Email sending failed:', emailError);
+            // Don't fail the request if email fails, but log it
+        }
 
         return NextResponse.json(
             { message: 'User created. Please verify email.', email: newUser.email },
             { status: 201 }
         );
     } catch (error) {
-        console.error('Registration error:', error);
+        console.error('Registration error details:', error);
         return NextResponse.json(
-            { message: 'Internal server error' },
+            { message: 'Internal server error: ' + (error.message || 'Unknown') },
             { status: 500 }
         );
     }

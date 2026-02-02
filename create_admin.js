@@ -5,7 +5,7 @@ const { hash } = require('bcryptjs');
 const prisma = new PrismaClient();
 
 async function main() {
-    const email = 'admin@jisr.com';
+    const email = 'admin@sinaa.com';
     const password = 'Admin123!';
 
     console.log(`Creating/Updating Admin User: ${email}...`);
