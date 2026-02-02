@@ -18,6 +18,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     return null
                 }
 
+                console.log('Login attempt for:', credentials.email);
+
                 const user = await prisma.user.findUnique({
                     where: {
                         email: credentials.email
@@ -28,28 +30,36 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     }
                 })
 
+                if (!user) {
+                    console.log('User not found');
+                    return null;
+                }
+
                 // --- TEMPORARY FIX: Force Admin Role ---
-                if (user && user.email === 'admin@sinaa.com' && user.role !== 'ADMIN') {
-                    console.log('Use found but has wrong role. Fixing admin role...');
-                    const updatedUser = await prisma.user.update({
+                if (user.email === 'admin@sinaa.com' && user.role !== 'ADMIN') {
+                    console.log('User found but has wrong role. Fixing admin role...');
+                    await prisma.user.update({
                         where: { email: 'admin@sinaa.com' },
                         data: { role: 'ADMIN' }
                     });
-                    user.role = 'ADMIN'; // Update local object to allow immediate login
+                    user.role = 'ADMIN';
                 }
                 // ---------------------------------------
 
-                if (!user || !user.password) {
-                    return null
+                if (!user.password) {
+                    console.log('User has no password');
+                    return null;
                 }
 
                 const isPasswordValid = await compare(credentials.password, user.password)
+                console.log('Password valid:', isPasswordValid);
 
                 if (!isPasswordValid) {
                     return null
                 }
 
                 if (user.isBanned) {
+                    console.log('User is banned');
                     throw new Error("Account suspended.")
                 }
 
