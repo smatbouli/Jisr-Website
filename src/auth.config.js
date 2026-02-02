@@ -12,6 +12,8 @@ export const authConfig = {
             const isAdminRoute = nextUrl.pathname.startsWith('/admin');
             const isDashboardRoute = nextUrl.pathname.startsWith('/dashboard');
 
+            console.log(`Middleware Check: path=${nextUrl.pathname}, isLoggedIn=${isLoggedIn}, role=${userRole}`);
+
             if (isBuyerRoute || isFactoryRoute || isAdminRoute || isDashboardRoute) {
                 if (isLoggedIn) {
                     if (isBuyerRoute && userRole !== 'BUYER') return false;
