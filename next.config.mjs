@@ -1,12 +1,18 @@
 /** @type {import('next').NextConfig} */
-// Trigger restart
 const nextConfig = {
   experimental: {
     serverActions: {
       bodySizeLimit: '10mb',
     },
   },
-  /* config options here */
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**.supabase.co',
+      },
+    ],
+  },
 };
 
 export default nextConfig;

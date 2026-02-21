@@ -4,8 +4,7 @@ import prisma from '@/lib/prisma';
 import { auth } from '@/auth';
 import { revalidatePath } from 'next/cache';
 
-const fs = require('fs');
-const path = require('path');
+import { uploadFile } from '@/lib/storage';
 
 export async function submitVerification(formData) {
     const session = await auth();
@@ -32,25 +31,21 @@ export async function submitVerification(formData) {
         console.log('Starting verification submission for user:', userId);
 
         // Helper to upload file
-        const uploadFile = async (file, prefix) => {
-            if (!file || typeof file === 'string' || file.size === 0) return null; // Handle optional files
+        // Helper to upload file
+        const uploadFileToSupabase = async (file, prefix) => {
+            if (!file || typeof file === 'string' || file.size === 0) return null;
+
             const buffer = Buffer.from(await file.arrayBuffer());
             const filename = `${prefix}-${Date.now()}-${file.name.replace(/[^a-z0-9.]/gi, '_')}`;
-            const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'documents');
+            const path = `documents/${filename}`;
 
-            if (!fs.existsSync(uploadDir)) {
-                fs.mkdirSync(uploadDir, { recursive: true });
-            }
-
-            const filePath = path.join(uploadDir, filename);
-            fs.writeFileSync(filePath, buffer);
-            return `/uploads/documents/${filename}`;
+            return await uploadFile(buffer, 'documents', path, file.type);
         };
 
-        const crDocumentUrl = await uploadFile(crFile, 'CR');
-        const licenseDocumentUrl = await uploadFile(licenseFile, 'LIC');
-        const taxDocumentUrl = await uploadFile(taxFile, 'TAX'); // New Mandatory
-        const sasoDocumentUrl = await uploadFile(sasoFile, 'SASO'); // New Optional
+        const crDocumentUrl = await uploadFileToSupabase(crFile, 'CR');
+        const licenseDocumentUrl = await uploadFileToSupabase(licenseFile, 'LIC');
+        const taxDocumentUrl = await uploadFileToSupabase(taxFile, 'TAX'); // New Mandatory
+        const sasoDocumentUrl = await uploadFileToSupabase(sasoFile, 'SASO'); // New Optional
 
         console.log('Files uploaded, updating database...');
 
@@ -90,12 +85,21 @@ export async function updateFactoryProfile(formData) {
     const description = formData.get('description');
     const businessNameAr = formData.get('businessNameAr');
     const crNumber = formData.get('crNumber');
+    const logoFile = formData.get('logo');
 
     try {
         const factory = await prisma.factoryProfile.findUnique({ where: { userId } });
 
         // If factory is already verified, save to pendingChanges instead
         if (factory.verificationStatus === 'VERIFIED') {
+            let logoUrl = factory.logoUrl;
+            if (logoFile && logoFile.size > 0) {
+                const buffer = Buffer.from(await logoFile.arrayBuffer());
+                const filename = `logo-${Date.now()}-${logoFile.name.replace(/[^a-z0-9.]/gi, '_')}`;
+                const path = `content/${filename}`;
+                logoUrl = await uploadFile(buffer, 'content', path, logoFile.type);
+            }
+
             const pendingData = {
                 businessName,
                 businessNameAr,
@@ -103,6 +107,7 @@ export async function updateFactoryProfile(formData) {
                 city,
                 description,
                 crNumber,
+                logoUrl, // Include new logo in pending changes
                 timestamp: new Date().toISOString()
             };
 
@@ -118,6 +123,14 @@ export async function updateFactoryProfile(formData) {
         }
 
         // Normal update for unverified factories
+        let logoUrl = factory.logoUrl;
+        if (logoFile && logoFile.size > 0) {
+            const buffer = Buffer.from(await logoFile.arrayBuffer());
+            const filename = `logo-${Date.now()}-${logoFile.name.replace(/[^a-z0-9.]/gi, '_')}`;
+            const path = `content/${filename}`;
+            logoUrl = await uploadFile(buffer, 'content', path, logoFile.type);
+        }
+
         await prisma.factoryProfile.update({
             where: { userId },
             data: {
@@ -127,6 +140,7 @@ export async function updateFactoryProfile(formData) {
                 city,
                 description,
                 crNumber,
+                logoUrl,
             },
         });
 

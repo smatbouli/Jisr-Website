@@ -3,6 +3,7 @@
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { auth } from '@/auth';
+import { uploadFile } from '@/lib/storage';
 
 export async function getSiteContent(key) {
     try {
@@ -59,20 +60,27 @@ export async function updateSiteHeader(formData) {
         let logoUrl = existing.logoUrl || null;
 
         if (logoFile && logoFile.size > 0) {
-            const fs = require('fs');
-            const path = require('path');
+            // const fs = require('fs');
+            // const path = require('path');
+
+            // const buffer = Buffer.from(await logoFile.arrayBuffer());
+            // const filename = `logo-${Date.now()}-${logoFile.name.replace(/[^a-z0-9.]/gi, '_')}`;
+            // const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'site');
+
+            // if (!fs.existsSync(uploadDir)) {
+            //     fs.mkdirSync(uploadDir, { recursive: true });
+            // }
+
+            // const filePath = path.join(uploadDir, filename);
+            // fs.writeFileSync(filePath, buffer);
+            // logoUrl = `/uploads/site/${filename}`;
 
             const buffer = Buffer.from(await logoFile.arrayBuffer());
             const filename = `logo-${Date.now()}-${logoFile.name.replace(/[^a-z0-9.]/gi, '_')}`;
-            const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'site');
+            // Upload to 'content' bucket or 'site'
+            const path = `site/${filename}`;
 
-            if (!fs.existsSync(uploadDir)) {
-                fs.mkdirSync(uploadDir, { recursive: true });
-            }
-
-            const filePath = path.join(uploadDir, filename);
-            fs.writeFileSync(filePath, buffer);
-            logoUrl = `/uploads/site/${filename}`;
+            logoUrl = await uploadFile(buffer, 'content', path, logoFile.type);
         }
 
         const data = {

@@ -4,6 +4,7 @@ import prisma from '@/lib/prisma';
 import { auth } from '@/auth';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { uploadFile } from '@/lib/storage';
 
 export async function getProducts(searchParams) {
     const query = searchParams?.q || '';
@@ -109,19 +110,26 @@ export async function createProduct(formData) {
         const path = require('path');
 
         try {
+            // const buffer = Buffer.from(await imageFile.arrayBuffer());
+            // const filename = `${Date.now()}-${imageFile.name.replace(/[^a-z0-9.]/gi, '_')}`;
+            // const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'products');
+
+            // // Ensure dir exists (redundant but safe)
+            // if (!fs.existsSync(uploadDir)) {
+            //     fs.mkdirSync(uploadDir, { recursive: true });
+            // }
+
+            // const filePath = path.join(uploadDir, filename);
+            // fs.writeFileSync(filePath, buffer);
+
+            // imageUrl = `/uploads/products/${filename}`;
+
             const buffer = Buffer.from(await imageFile.arrayBuffer());
             const filename = `${Date.now()}-${imageFile.name.replace(/[^a-z0-9.]/gi, '_')}`;
-            const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'products');
+            const path = `products/${filename}`;
 
-            // Ensure dir exists (redundant but safe)
-            if (!fs.existsSync(uploadDir)) {
-                fs.mkdirSync(uploadDir, { recursive: true });
-            }
-
-            const filePath = path.join(uploadDir, filename);
-            fs.writeFileSync(filePath, buffer);
-
-            imageUrl = `/uploads/products/${filename}`;
+            // Upload to Supabase 'products' bucket
+            imageUrl = await uploadFile(buffer, 'products', path, imageFile.type);
         } catch (e) {
             console.error("Upload error:", e);
             // Continue without image or handle error
@@ -214,18 +222,25 @@ export async function updateProduct(productId, formData) {
         const path = require('path');
 
         try {
+            // const buffer = Buffer.from(await imageFile.arrayBuffer());
+            // const filename = `${Date.now()}-${imageFile.name.replace(/[^a-z0-9.]/gi, '_')}`;
+            // const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'products');
+
+            // if (!fs.existsSync(uploadDir)) {
+            //     fs.mkdirSync(uploadDir, { recursive: true });
+            // }
+
+            // const filePath = path.join(uploadDir, filename);
+            // fs.writeFileSync(filePath, buffer);
+
+            // imageUrl = `/uploads/products/${filename}`;
+
             const buffer = Buffer.from(await imageFile.arrayBuffer());
             const filename = `${Date.now()}-${imageFile.name.replace(/[^a-z0-9.]/gi, '_')}`;
-            const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'products');
+            const path = `products/${filename}`;
 
-            if (!fs.existsSync(uploadDir)) {
-                fs.mkdirSync(uploadDir, { recursive: true });
-            }
-
-            const filePath = path.join(uploadDir, filename);
-            fs.writeFileSync(filePath, buffer);
-
-            imageUrl = `/uploads/products/${filename}`;
+            // Upload to Supabase 'products' bucket
+            imageUrl = await uploadFile(buffer, 'products', path, imageFile.type);
         } catch (e) {
             console.error("Upload error:", e);
             return { error: 'Image upload failed: ' + e.message };

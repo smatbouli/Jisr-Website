@@ -82,5 +82,4 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         })
     ],
     trustHost: true,
-    secret: "Admin123!", // Hardcoded fix for missing env var
 })

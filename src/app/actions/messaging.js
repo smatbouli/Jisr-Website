@@ -3,8 +3,7 @@
 import prisma from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
 import { auth } from '@/auth'
-import fs from 'fs';
-import path from 'path';
+import { uploadFile } from '@/lib/storage';
 
 // Fetch all conversations for the current user
 export async function getConversations() {
@@ -253,18 +252,24 @@ export async function sendMessage(conversationId, content, attachment) {
         let attachmentType = null;
 
         if (file && file.size > 0 && typeof file !== 'string') {
+            // const buffer = Buffer.from(await file.arrayBuffer());
+            // const filename = `msg-${Date.now()}-${file.name.replace(/[^a-z0-9.]/gi, '_')}`;
+            // const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'messages');
+
+            // if (!fs.existsSync(uploadDir)) {
+            //     fs.mkdirSync(uploadDir, { recursive: true });
+            // }
+
+            // const filePath = path.join(uploadDir, filename);
+            // fs.writeFileSync(filePath, buffer);
+
+            // attachmentUrl = `/uploads/messages/${filename}`;
+
             const buffer = Buffer.from(await file.arrayBuffer());
             const filename = `msg-${Date.now()}-${file.name.replace(/[^a-z0-9.]/gi, '_')}`;
-            const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'messages');
+            const path = `messages/${filename}`;
 
-            if (!fs.existsSync(uploadDir)) {
-                fs.mkdirSync(uploadDir, { recursive: true });
-            }
-
-            const filePath = path.join(uploadDir, filename);
-            fs.writeFileSync(filePath, buffer);
-
-            attachmentUrl = `/uploads/messages/${filename}`;
+            attachmentUrl = await uploadFile(buffer, 'messages', path, file.type);
 
             // Determine type
             const ext = path.extname(filename).toLowerCase();

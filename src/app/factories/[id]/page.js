@@ -33,9 +33,19 @@ export default async function PublicFactoryProfilePage({ params }) {
                     </div>
                     <div className="px-8 pb-8">
                         <div className="flex flex-col md:flex-row gap-6 items-start -mt-12 relative z-10">
-                            {/* Logo Placeholder */}
-                            <div className="w-32 h-32 bg-white rounded-2xl shadow-md flex items-center justify-center text-primary-900 text-4xl font-serif font-bold border-4 border-white">
-                                {factory.businessName.charAt(0)}
+                            {/* Logo */}
+                            <div className="w-32 h-32 bg-white rounded-2xl shadow-md overflow-hidden border-4 border-white flex items-center justify-center relative">
+                                {factory.logoUrl ? (
+                                    <img
+                                        src={factory.logoUrl}
+                                        alt={`${factory.businessName} Logo`}
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-primary-900 text-4xl font-serif font-bold">
+                                        {factory.businessName.charAt(0)}
+                                    </div>
+                                )}
                             </div>
 
                             <div className="flex-1 pt-0 md:pt-14">

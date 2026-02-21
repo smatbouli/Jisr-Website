@@ -1,204 +1,179 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
-  binaryTargets = ["native", "rhel-openssl-3.0.x"]
-}
-
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  role      String   @default("BUYER") // "BUYER", "FACTORY", "ADMIN"
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  isBanned  Boolean  @default(false)
-  
-  // Relations
-  factoryProfile FactoryProfile?
-  buyerProfile   BuyerProfile?
-  
-  initiatedConversations Conversation[] @relation("Starter")
-  receivedConversations  Conversation[] @relation("Receiver")
+  id                     String          @id @default(cuid())
+  email                  String          @unique
+  password               String
+  role                   String          @default("BUYER")
+  createdAt              DateTime        @default(now())
+  updatedAt              DateTime        @updatedAt
+  isBanned               Boolean         @default(false)
+  isVerified             Boolean         @default(false)
+  verificationCode       String?
+  buyerProfile           BuyerProfile?
+  receivedConversations  Conversation[]  @relation("Receiver")
+  initiatedConversations Conversation[]  @relation("Starter")
+  filedDisputes          Dispute[]
+  factoryProfile         FactoryProfile?
   messages               Message[]
   notifications          Notification[]
-  filedDisputes          Dispute[]
 }
 
 model Notification {
   id        String   @id @default(cuid())
   userId    String
-  type      String   // QUOTE_RECEIVED, ORDER_RECEIVED, ORDER_UPDATED, NEW_MESSAGE
+  type      String
   title     String
   message   String
   link      String?
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
-
   user      User     @relation(fields: [userId], references: [id])
 }
 
 model Conversation {
-  id            String   @id @default(cuid())
+  id            String    @id @default(cuid())
   starterId     String
   receiverId    String
-  lastMessageAt DateTime @default(now())
+  lastMessageAt DateTime  @default(now())
   subject       String?
-  
-  starter   User @relation("Starter", fields: [starterId], references: [id])
-  receiver  User @relation("Receiver", fields: [receiverId], references: [id])
-  
-  messages  Message[]
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  receiver      User      @relation("Receiver", fields: [receiverId], references: [id])
+  starter       User      @relation("Starter", fields: [starterId], references: [id])
+  messages      Message[]
+
   @@unique([starterId, receiverId])
 }
 
 model Message {
-  id             String   @id @default(cuid())
+  id             String       @id @default(cuid())
   conversationId String
   senderId       String
   content        String
   attachmentUrl  String?
-  attachmentType String? // IMAGE, DOCUMENT
-  read           Boolean  @default(false)
-  
-  conversation Conversation @relation(fields: [conversationId], references: [id])
-  sender       User         @relation(fields: [senderId], references: [id])
-  
-  createdAt DateTime @default(now())
+  attachmentType String?
+  read           Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  sender         User         @relation(fields: [senderId], references: [id])
 }
 
 model FactoryProfile {
-  id             String  @id @default(cuid())
-  businessName   String
-  businessNameAr String?
-  crNumber       String? // Commercial Registration
-  licenseNumber  String?
-  city           String?
-  industry       String?
-  description    String?
-  crDocumentUrl  String? // URL to uploaded CR document
-  licenseDocumentUrl String? // URL to uploaded Industrial License
-  taxNumber      String? // VAT/Tax Number
-  taxDocumentUrl String? // VAT/Tax Certificate
-  sasoDocumentUrl String? // SASO/SABER Certificate (Optional)
-  isVerified     Boolean @default(false)
-  verificationStatus String @default("UNVERIFIED") // UNVERIFIED, PENDING, VERIFIED, REJECTED
-  pendingChanges String? // JSON string of proposed changes for verified profiles
-
-  user   User   @relation(fields: [userId], references: [id])
-  userId String @unique
-  
-  // Relations
-  products Product[]
-  rfqResponses RfqResponse[]
-  orders Order[]
-  reviews Review[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                 String        @id @default(cuid())
+  businessName       String
+  businessNameAr     String?
+  crNumber           String?
+  licenseNumber      String?
+  city               String?
+  industry           String?
+  description        String?
+  logoUrl            String?
+  crDocumentUrl      String?
+  licenseDocumentUrl String?
+  taxNumber          String?
+  taxDocumentUrl     String?
+  sasoDocumentUrl    String?
+  isVerified         Boolean       @default(false)
+  verificationStatus String        @default("UNVERIFIED")
+  pendingChanges     String?
+  userId             String        @unique
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  user               User          @relation(fields: [userId], references: [id])
+  orders             Order[]
+  products           Product[]
+  reviews            Review[]
+  rfqResponses       RfqResponse[]
 }
 
 model BuyerProfile {
-  id           String @id @default(cuid())
+  id           String   @id @default(cuid())
   businessName String
   city         String?
-  
-  user   User   @relation(fields: [userId], references: [id])
-  userId String @unique
-  
-  rfqs Rfq[]
-  orders Order[]
-  reviews Review[]
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id])
+  orders       Order[]
+  reviews      Review[]
+  rfqs         Rfq[]
 }
 
 model Product {
-  id          String @id @default(cuid())
-  name        String
-  description String
-  price       Float?
-  priceMin    Float?
-  priceMax    Float?
-  moq         Int?
-  imageUrl    String?
-  attributes  String? // JSON string: { "Material": "Steel", "Voltage": "220V" }
-  customization String? // JSON string: { "logo": true, "packaging": true }
-  leadTime    String? // JSON string: [{ "qty": "1-100", "days": 7 }]
-  status      String   @default("PENDING") // PENDING, APPROVED, REJECTED
-  
-  factory   FactoryProfile @relation(fields: [factoryId], references: [id])
-  factoryId String
+  id            String         @id @default(cuid())
+  name          String
+  description   String
+  price         Float?
+  priceMin      Float?
+  priceMax      Float?
+  moq           Int?
+  imageUrl      String?
+  attributes    String?
+  customization String?
+  leadTime      String?
+  status        String         @default("PENDING")
+  factoryId     String
+  factory       FactoryProfile @relation(fields: [factoryId], references: [id])
 }
 
 model Rfq {
-  id          String   @id @default(cuid())
+  id          String        @id @default(cuid())
   title       String
   description String
   quantity    Int
-  status      String   @default("OPEN") // OPEN, CLOSED, AWARDED
-  createdAt   DateTime @default(now())
-  
-  buyer   BuyerProfile @relation(fields: [buyerId], references: [id])
-  buyerId String
-  
-  responses RfqResponse[]
-  orders    Order[]
+  status      String        @default("OPEN")
+  createdAt   DateTime      @default(now())
+  buyerId     String
+  orders      Order[]
+  buyer       BuyerProfile  @relation(fields: [buyerId], references: [id])
+  responses   RfqResponse[]
 }
 
 model RfqResponse {
-  id        String   @id @default(cuid())
+  id        String         @id @default(cuid())
   price     Float
   notes     String?
-  createdAt DateTime @default(now())
-  status    String   @default("PENDING") // PENDING, REJECTED, AWARDED
-  
-  rfq   Rfq @relation(fields: [rfqId], references: [id])
-  rfqId String
-  
-  factory   FactoryProfile @relation(fields: [factoryId], references: [id])
+  createdAt DateTime       @default(now())
+  status    String         @default("PENDING")
+  rfqId     String
   factoryId String
-
-  order Order?
+  order     Order?
+  factory   FactoryProfile @relation(fields: [factoryId], references: [id])
+  rfq       Rfq            @relation(fields: [rfqId], references: [id])
 }
 
 model Order {
-  id        String   @id @default(cuid())
-  status    String   @default("PENDING") // PENDING, PROCESSING, SHIPPED, DELIVERED, CANCELLED, DISPUTED
-  totalPrice Float
-  
-  paymentStatus String @default("UNPAID") // UNPAID, PAID, REFUNDED
-  paymentMethod String? // CREDIT_CARD, MADA, TRANSFER
-  paymentId     String? // Transaction ID
-  
-  buyer   BuyerProfile @relation(fields: [buyerId], references: [id])
-  buyerId String
-  
-  factory   FactoryProfile @relation(fields: [factoryId], references: [id])
-  factoryId String
-  
-  rfq   Rfq? @relation(fields: [rfqId], references: [id])
-  rfqId String?
-  
-  quote   RfqResponse? @relation(fields: [quoteId], references: [id])
-  quoteId String? @unique
-  
-  dispute Dispute?
-  review  Review?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String         @id @default(cuid())
+  status        String         @default("PENDING")
+  totalPrice    Float
+  paymentStatus String         @default("UNPAID")
+  paymentMethod String?
+  paymentId     String?
+  buyerId       String
+  factoryId     String
+  rfqId         String?
+  quoteId       String?        @unique
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  dispute       Dispute?
+  buyer         BuyerProfile   @relation(fields: [buyerId], references: [id])
+  factory       FactoryProfile @relation(fields: [factoryId], references: [id])
+  quote         RfqResponse?   @relation(fields: [quoteId], references: [id])
+  rfq           Rfq?           @relation(fields: [rfqId], references: [id])
+  review        Review?
 }
 
 model SiteContent {
   id        String   @id @default(cuid())
-  key       String   @unique // e.g., "homepage_hero"
-  content   String   // JSON string
+  key       String   @unique
+  content   String
   updatedAt DateTime @updatedAt
 }
 
@@ -208,25 +183,23 @@ model Dispute {
   reporterId  String
   reason      String
   description String
-  status      String   @default("OPEN") // OPEN, RESOLVED, REJECTED
+  status      String   @default("OPEN")
   adminNotes  String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  order    Order @relation(fields: [orderId], references: [id])
-  reporter User  @relation(fields: [reporterId], references: [id])
+  order       Order    @relation(fields: [orderId], references: [id])
+  reporter    User     @relation(fields: [reporterId], references: [id])
 }
 
 model Review {
-  id        String   @id @default(cuid())
-  orderId   String   @unique
+  id        String         @id @default(cuid())
+  orderId   String         @unique
   buyerId   String
   factoryId String
-  rating    Int      // 1-5
+  rating    Int
   comment   String?
-  createdAt DateTime @default(now())
-
-  order   Order          @relation(fields: [orderId], references: [id])
-  buyer   BuyerProfile   @relation(fields: [buyerId], references: [id])
-  factory FactoryProfile @relation(fields: [factoryId], references: [id])
+  createdAt DateTime       @default(now())
+  buyer     BuyerProfile   @relation(fields: [buyerId], references: [id])
+  factory   FactoryProfile @relation(fields: [factoryId], references: [id])
+  order     Order          @relation(fields: [orderId], references: [id])
 }
